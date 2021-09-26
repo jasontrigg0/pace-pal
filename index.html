@@ -34,12 +34,26 @@
     </div>
   </body>
   <script>
+    let embeds = {};
     function fetchData() {
       console.log('Fetching updated data.');
       let xhr = new XMLHttpRequest();
       xhr.open("GET", "https://firestore.googleapis.com/v1beta1/projects/jtrigg-50e45/databases/(default)/documents/main/dump", true);
       xhr.onload = function() {
-        alert(JSON.parse(xhr.response)["fields"]["pace-pal"]["stringValue"]);
+        runners = JSON.parse(xhr.response)["fields"]["pace-pal"]["stringValue"].split(",");
+        runners.forEach((x,i) => {
+          const id = `pos${i+1}`;
+          if (!embeds[x]) {
+            let url = "https://player.twitch.tv/?channel="+x+"&parent=jasontrigg0.github.io&muted=true";
+            let iframe = document.createElement("iframe", {id: id});
+            iframe.src = url;
+            iframe.className = "embed";
+            document.getElementById('global').appendChild(iframe);
+            embeds[x] = iframe;
+          } else {
+            embeds[x].id = id;
+          }
+        });
       }
       xhr.send();
     }
@@ -54,23 +68,8 @@
      return new Promise(resolve => setTimeout(resolve, ms));
    }
    async function mainLoop() {
-     let embeds = {};
      while (true) {
-       const runners = ['liquidwifi','armadaugs','gothiclogic','coolkid'];
-       shuffleArray(runners);
-       runners.forEach((x,i) => {
-         const id = `pos${i+1}`;
-         if (!embeds[x]) {
-           let url = "https://player.twitch.tv/?channel="+x+"&parent=jasontrigg0.github.io&muted=true";
-           let iframe = document.createElement("iframe", {id: id});
-           iframe.src = url;
-           iframe.className = "embed";
-           document.getElementById('global').appendChild(iframe);
-           embeds[x] = iframe;
-         } else {
-           embeds[x].id = id;
-         }
-       });
+       fetchData();
        await sleep(3000);
      }
    }
