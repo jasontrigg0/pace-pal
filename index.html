@@ -45,12 +45,16 @@
      return new Promise(resolve => setTimeout(resolve, ms));
    }
    async function mainLoop() {
+     let embeds = {}
      while (true) {
        const runners = ['liquidwifi','armadaugs','gothiclogic','coolkid'];
        shuffleArray(runners);
        const children = runners.map((x,i) => {
-         const url = "https://player.twitch.tv/?channel="+x+"&parent=jasontrigg0.github.io&muted=true";
-         return React.createElement("div", {key: x, class: "vid", style:{left:0.5*window.innerWidth*(i%2), top:0.5*window.innerHeight*(i>1)}}, React.createElement("iframe", {src: url, width: 0.5*window.innerWidth - 20, height: 0.5*window.innerHeight - 20}));
+         if (!embeds[x]) {
+           let url = "https://player.twitch.tv/?channel="+x+"&parent=jasontrigg0.github.io&muted=true";
+           embeds[x] = React.createElement("iframe", {src: url, width: 0.5*window.innerWidth - 20, height: 0.5*window.innerHeight - 20});
+         }
+         return React.createElement("div", {key: x, class: "vid", style:{left:0.5*window.innerWidth*(i%2), top:0.5*window.innerHeight*(i>1)}}, embeds[x]);
        });
        console.log(children);
        const title = React.createElement(FlipMove, {typeName: "div"}, children);
